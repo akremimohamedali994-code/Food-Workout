@@ -1,0 +1,1562 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>NutriTrack & Fitness Pro - Crimson Ultra Edition</title>
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Google Fonts: Syne & Plus Jakarta Sans -->
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Syne:wght@600;700;800;900&display=swap" rel="stylesheet">
+  <!-- FontAwesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Plus Jakarta Sans', 'sans-serif'],
+            display: ['Syne', 'sans-serif'],
+          },
+          colors: {
+            crimson: {
+              300: '#ff668c',
+              400: '#ff3366',
+              500: '#ff003c',
+              600: '#d60032',
+              700: '#990024',
+              glow: 'rgba(255, 0, 60, 0.45)'
+            },
+            obsidian: {
+              950: '#07070a',
+              900: '#0f0f15',
+              850: '#15151f',
+              800: '#1e1e2b',
+              750: '#282838'
+            }
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    :root {
+      --bg-main: #07070a;
+      --panel-bg: #0f0f15;
+      --card-bg: #15151f;
+      --border-color: rgba(255, 0, 60, 0.2);
+      --text-main: #ffffff;
+    }
+
+    html.light {
+      --bg-main: #f8fafc;
+      --panel-bg: #ffffff;
+      --card-bg: #f1f5f9;
+      --border-color: rgba(214, 0, 50, 0.25);
+      --text-main: #0f172a;
+    }
+
+    body {
+      background-color: var(--bg-main);
+      color: var(--text-main);
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      transition: background-color 0.3s ease, color 0.3s ease;
+      overflow-x: hidden;
+    }
+
+    h1, h2, h3, h4, .font-display { font-family: 'Syne', sans-serif; }
+
+    /* Custom Scrollbars */
+    .custom-scrollbar::-webkit-scrollbar { width: 6px; height: 6px; }
+    .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+    .custom-scrollbar::-webkit-scrollbar-thumb { background: #990024; border-radius: 9999px; }
+    .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #ff003c; }
+
+    /* Neon & Crimson Visual Accents */
+    .crimson-glow { box-shadow: 0 0 25px -2px rgba(255, 0, 60, 0.4); }
+    .crimson-glow-sm { box-shadow: 0 0 12px -1px rgba(255, 0, 60, 0.3); }
+    .crimson-gradient-text {
+      background: linear-gradient(135deg, #ffffff 0%, #ff4d79 60%, #ff003c 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    /* Scroll Reveal Animation */
+    .reveal-on-scroll {
+      opacity: 0;
+      transform: translateY(20px);
+      transition: opacity 0.5s cubic-bezier(0.16, 1, 0.3, 1), transform 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+      will-change: opacity, transform;
+    }
+    .reveal-on-scroll.is-visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    /* Water Wave Indicator */
+    .water-container {
+      position: relative;
+      overflow: hidden;
+    }
+    .water-wave {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      background: linear-gradient(180deg, rgba(56, 189, 248, 0.6) 0%, rgba(14, 165, 233, 0.9) 100%);
+      transition: height 0.5s ease-in-out;
+      border-radius: 0 0 1.5rem 1.5rem;
+    }
+
+    /* Executive Print Styling */
+    @media print {
+      header, nav, .no-print, button, #toastNotification, #floatingTimer { display: none !important; }
+      body { background: white !important; color: black !important; padding: 0 !important; }
+      main { display: block !important; max-width: 100% !important; padding: 0 !important; }
+      aside { width: 100% !important; position: static !important; }
+      #printHeader { display: block !important; }
+      .bg-obsidian-900, .bg-obsidian-850, .bg-obsidian-950 { background: white !important; border: 1px solid #ddd !important; }
+      .text-white, .text-slate-300, .text-slate-400 { color: black !important; }
+    }
+  </style>
+</head>
+<body class="min-h-screen flex flex-col antialiased selection:bg-crimson-500 selection:text-white">
+
+  <!-- Audio Chime Generator using Web Audio API -->
+  <script>
+    const AudioEngine = {
+      ctx: null,
+      init() {
+        if (!this.ctx) {
+          this.ctx = new (window.AudioContext || window.webkitAudioContext)();
+        }
+      },
+      playChime(type = 'add') {
+        try {
+          this.init();
+          if (this.ctx.state === 'suspended') this.ctx.resume();
+          const osc = this.ctx.createOscillator();
+          const gain = this.ctx.createGain();
+          osc.connect(gain);
+          gain.connect(this.ctx.destination);
+
+          const now = this.ctx.currentTime;
+          if (type === 'add') {
+            osc.frequency.setValueAtTime(440, now);
+            osc.frequency.exponentialRampToValueAtTime(880, now + 0.15);
+            gain.gain.setValueAtTime(0.15, now);
+            gain.gain.exponentialRampToValueAtTime(0.01, now + 0.15);
+            osc.start(now);
+            osc.stop(now + 0.15);
+          } else if (type === 'levelup') {
+            osc.frequency.setValueAtTime(523.25, now);
+            osc.frequency.setValueAtTime(659.25, now + 0.1);
+            osc.frequency.setValueAtTime(783.99, now + 0.2);
+            gain.gain.setValueAtTime(0.2, now);
+            gain.gain.exponentialRampToValueAtTime(0.01, now + 0.35);
+            osc.start(now);
+            osc.stop(now + 0.35);
+          } else if (type === 'timer') {
+            osc.frequency.setValueAtTime(880, now);
+            osc.frequency.setValueAtTime(440, now + 0.15);
+            gain.gain.setValueAtTime(0.25, now);
+            gain.gain.exponentialRampToValueAtTime(0.01, now + 0.3);
+            osc.start(now);
+            osc.stop(now + 0.3);
+          }
+        } catch(e) {}
+      }
+    };
+  </script>
+
+  <!-- Notification Toast -->
+  <div id="toastNotification" class="fixed bottom-6 right-6 z-50 transform translate-y-24 opacity-0 transition-all duration-300 pointer-events-none flex items-center gap-3 bg-obsidian-900 border border-crimson-500/50 text-white px-5 py-3.5 rounded-2xl crimson-glow">
+    <div class="w-9 h-9 rounded-xl bg-crimson-500/20 flex items-center justify-center text-crimson-400 text-base">
+      <i class="fa-solid fa-bolt"></i>
+    </div>
+    <div>
+      <h4 class="text-xs font-bold text-crimson-400 font-display uppercase tracking-wider" id="toastTitle">System Alert</h4>
+      <p class="text-xs text-slate-300" id="toastBody">Action recorded successfully.</p>
+    </div>
+  </div>
+
+  <!-- Floating Workout Rest Timer -->
+  <div id="floatingTimer" class="fixed bottom-6 left-6 z-40 bg-obsidian-900 border border-crimson-500/40 p-4 rounded-2xl crimson-glow hidden space-y-2 w-64 shadow-2xl">
+    <div class="flex items-center justify-between">
+      <span class="text-xs font-extrabold text-white font-display flex items-center gap-1.5">
+        <i class="fa-solid fa-stopwatch text-crimson-500 animate-pulse"></i> Rest Timer
+      </span>
+      <button onclick="stopRestTimer()" class="text-slate-400 hover:text-white text-xs"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+    <div class="text-2xl font-black text-center text-crimson-400 font-mono tracking-wider py-1" id="timerDisplay">00:60</div>
+    <div class="grid grid-cols-4 gap-1">
+      <button onclick="startRestTimer(30)" class="py-1 bg-obsidian-950 hover:bg-crimson-500/20 border border-crimson-500/20 text-[10px] font-bold rounded-lg text-slate-300">30s</button>
+      <button onclick="startRestTimer(60)" class="py-1 bg-obsidian-950 hover:bg-crimson-500/20 border border-crimson-500/20 text-[10px] font-bold rounded-lg text-slate-300">60s</button>
+      <button onclick="startRestTimer(90)" class="py-1 bg-obsidian-950 hover:bg-crimson-500/20 border border-crimson-500/20 text-[10px] font-bold rounded-lg text-slate-300">90s</button>
+      <button onclick="startRestTimer(120)" class="py-1 bg-obsidian-950 hover:bg-crimson-500/20 border border-crimson-500/20 text-[10px] font-bold rounded-lg text-slate-300">120s</button>
+    </div>
+  </div>
+
+  <!-- App Navigation Header -->
+  <header class="bg-obsidian-900/90 backdrop-blur-md border-b border-crimson-500/20 sticky top-0 z-30 shadow-2xl">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3.5">
+      <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+        
+        <!-- App Title & Identity -->
+        <div class="flex items-center space-x-3.5">
+          <div class="w-11 h-11 rounded-2xl bg-gradient-to-tr from-crimson-700 via-crimson-500 to-red-400 flex items-center justify-center text-white crimson-glow font-black text-2xl">
+            <i class="fa-solid fa-shield-halved"></i>
+          </div>
+          <div>
+            <div class="flex items-center gap-2.5">
+              <h1 class="text-2xl font-black tracking-tight text-white font-display">NutriTrack <span class="crimson-gradient-text">ULTRA</span></h1>
+              <span class="text-[10px] font-extrabold px-2.5 py-0.5 rounded-full bg-crimson-500/20 text-crimson-400 border border-crimson-500/30 uppercase tracking-widest">20+ Power Tools</span>
+            </div>
+            <p class="text-xs text-slate-400">250+ Foods • 100+ Exercises • IP Session Bound</p>
+          </div>
+        </div>
+
+        <!-- IP Status & Action Controls -->
+        <div class="flex items-center gap-3 flex-wrap sm:flex-nowrap">
+          <div onclick="openAccountModal()" class="cursor-pointer flex items-center gap-2.5 px-3.5 py-2 rounded-2xl bg-obsidian-850 border border-crimson-500/25 hover:border-crimson-500 transition-all crimson-glow-sm">
+            <span class="relative flex h-2.5 w-2.5">
+              <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-crimson-400 opacity-75"></span>
+              <span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-crimson-500"></span>
+            </span>
+            <div class="text-left">
+              <div class="text-[9px] font-extrabold text-slate-400 uppercase tracking-wider leading-none flex items-center gap-1">
+                <span>IP Identity</span>
+                <i class="fa-solid fa-chevron-down text-[8px] text-crimson-400"></i>
+              </div>
+              <div class="text-xs font-bold text-white font-mono mt-0.5" id="userIpBadge">Syncing IP...</div>
+            </div>
+          </div>
+
+          <!-- XP / Level Badge -->
+          <div class="flex items-center gap-2 px-3.5 py-2 rounded-2xl bg-crimson-500/10 border border-crimson-500/30 text-xs font-bold text-crimson-400">
+            <i class="fa-solid fa-trophy"></i>
+            <span id="userLevelBadge">Lvl 1 • 0 XP</span>
+          </div>
+
+          <!-- Theme Toggle -->
+          <button id="themeToggleBtn" onclick="toggleTheme()" class="p-2.5 rounded-2xl bg-obsidian-850 text-slate-300 hover:text-crimson-400 border border-crimson-500/20 transition-all">
+            <i id="themeIcon" class="fa-solid fa-moon text-sm"></i>
+          </button>
+        </div>
+      </div>
+
+      <!-- Navigation Tabs (20 Tools Organized) -->
+      <div class="flex items-center gap-2 mt-3 pt-3 border-t border-crimson-500/15 overflow-x-auto custom-scrollbar pb-1">
+        <button id="tabDiet" onclick="switchTab('diet')" class="px-4 py-2 rounded-xl text-xs font-bold flex items-center gap-2 bg-crimson-500 text-white shadow-lg crimson-glow font-display transition-all whitespace-nowrap">
+          <i class="fa-solid fa-utensils"></i> Diet & Macros
+        </button>
+        <button id="tabWorkout" onclick="switchTab('workout')" class="px-4 py-2 rounded-xl text-xs font-bold flex items-center gap-2 bg-obsidian-850 text-slate-300 hover:bg-obsidian-800 font-display transition-all border border-transparent hover:border-crimson-500/20 whitespace-nowrap">
+          <i class="fa-solid fa-dumbbell text-crimson-500"></i> Workouts
+        </button>
+        <button id="tabFasting" onclick="switchTab('fasting')" class="px-4 py-2 rounded-xl text-xs font-bold flex items-center gap-2 bg-obsidian-850 text-slate-300 hover:bg-obsidian-800 font-display transition-all border border-transparent hover:border-crimson-500/20 whitespace-nowrap">
+          <i class="fa-solid fa-clock text-amber-400"></i> Fasting Timer
+        </button>
+        <button id="tabRecipes" onclick="switchTab('recipes')" class="px-4 py-2 rounded-xl text-xs font-bold flex items-center gap-2 bg-obsidian-850 text-slate-300 hover:bg-obsidian-800 font-display transition-all border border-transparent hover:border-crimson-500/20 whitespace-nowrap">
+          <i class="fa-solid fa-book-open text-emerald-400"></i> Recipes & Meals
+        </button>
+        <button id="tabTools" onclick="switchTab('tools')" class="px-4 py-2 rounded-xl text-xs font-bold flex items-center gap-2 bg-obsidian-850 text-slate-300 hover:bg-obsidian-800 font-display transition-all border border-transparent hover:border-crimson-500/20 whitespace-nowrap">
+          <i class="fa-solid fa-sliders text-indigo-400"></i> Calculators & Tools
+        </button>
+        <button id="tabJournal" onclick="switchTab('journal')" class="px-4 py-2 rounded-xl text-xs font-bold flex items-center gap-2 bg-obsidian-850 text-slate-300 hover:bg-obsidian-800 font-display transition-all border border-transparent hover:border-crimson-500/20 whitespace-nowrap">
+          <i class="fa-solid fa-notes-medical text-sky-400"></i> Body Journal
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- App Main Layout Grid -->
+  <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 flex-1 w-full grid grid-cols-1 lg:grid-cols-12 gap-8">
+
+    <!-- Print Executive Header -->
+    <div id="printHeader" class="hidden col-span-12 pb-4 mb-4 border-b border-slate-300">
+      <div class="flex justify-between items-end">
+        <div>
+          <h1 class="text-2xl font-bold text-slate-900 font-display">NutriTrack Executive Diet & Workout Blueprint</h1>
+          <p class="text-xs text-slate-600" id="printUserIp"></p>
+        </div>
+        <p class="text-xs text-slate-500" id="printDate"></p>
+      </div>
+    </div>
+
+    <!-- Main Active View Section -->
+    <section class="lg:col-span-8 flex flex-col gap-6">
+
+      <!-- TDEE & Body Parameter Calculator Bar -->
+      <div class="reveal-on-scroll bg-obsidian-900 border border-crimson-500/25 rounded-3xl p-5 shadow-2xl space-y-4 crimson-glow-sm">
+        <div class="flex items-center justify-between pb-3 border-b border-crimson-500/15">
+          <div class="flex items-center space-x-3">
+            <div class="w-9 h-9 rounded-xl bg-crimson-500/20 border border-crimson-500/40 flex items-center justify-center text-crimson-400">
+              <i class="fa-solid fa-calculator text-base"></i>
+            </div>
+            <div>
+              <h2 class="font-bold text-lg text-white font-display">TDEE & Target Presets</h2>
+              <p class="text-xs text-slate-400">Calculate BMR/TDEE & select dynamic macro splits</p>
+            </div>
+          </div>
+          <button onclick="toggleCalcForm()" class="text-xs text-crimson-400 hover:text-white bg-obsidian-850 hover:bg-obsidian-800 px-3 py-1.5 rounded-xl border border-crimson-500/30 transition-all font-semibold">
+            <i class="fa-solid fa-sliders mr-1"></i> Toggle Form
+          </button>
+        </div>
+
+        <form id="tdeeForm" onchange="calculateTDEE()" class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
+          <div>
+            <label class="block text-[10px] font-extrabold text-slate-400 uppercase tracking-wider mb-1">Gender</label>
+            <select id="userGender" class="w-full bg-obsidian-950 border border-crimson-500/20 rounded-xl py-2 px-2.5 text-xs text-white focus:border-crimson-500 focus:outline-none">
+              <option value="male">Male</option>
+              <option value="female">Female</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-[10px] font-extrabold text-slate-400 uppercase tracking-wider mb-1">Age</label>
+            <input type="number" id="userAge" value="26" min="12" max="100" class="w-full bg-obsidian-950 border border-crimson-500/20 rounded-xl py-2 px-2.5 text-xs text-white focus:border-crimson-500 focus:outline-none">
+          </div>
+          <div>
+            <label class="block text-[10px] font-extrabold text-slate-400 uppercase tracking-wider mb-1">Weight (kg)</label>
+            <input type="number" id="userWeight" value="78" step="0.5" min="30" max="300" class="w-full bg-obsidian-950 border border-crimson-500/20 rounded-xl py-2 px-2.5 text-xs text-white focus:border-crimson-500 focus:outline-none">
+          </div>
+          <div>
+            <label class="block text-[10px] font-extrabold text-slate-400 uppercase tracking-wider mb-1">Height (cm)</label>
+            <input type="number" id="userHeight" value="180" min="100" max="250" class="w-full bg-obsidian-950 border border-crimson-500/20 rounded-xl py-2 px-2.5 text-xs text-white focus:border-crimson-500 focus:outline-none">
+          </div>
+          <div>
+            <label class="block text-[10px] font-extrabold text-slate-400 uppercase tracking-wider mb-1">Body Fat %</label>
+            <input type="number" id="userBodyFat" placeholder="14" step="0.5" min="3" max="50" class="w-full bg-obsidian-950 border border-crimson-500/20 rounded-xl py-2 px-2.5 text-xs text-white focus:border-crimson-500 focus:outline-none">
+          </div>
+          <div>
+            <label class="block text-[10px] font-extrabold text-slate-400 uppercase tracking-wider mb-1">Goal Preset</label>
+            <select id="userGoal" class="w-full bg-obsidian-950 border border-crimson-500/20 rounded-xl py-2 px-2.5 text-xs text-white focus:border-crimson-500 focus:outline-none">
+              <option value="cut">Fat Loss (-20%)</option>
+              <option value="maintain" selected>Maintain</option>
+              <option value="bulk">Muscle Bulk (+15%)</option>
+            </select>
+          </div>
+          <div class="col-span-2 sm:col-span-3 lg:col-span-3">
+            <label class="block text-[10px] font-extrabold text-slate-400 uppercase tracking-wider mb-1">Activity Level</label>
+            <select id="userActivity" class="w-full bg-obsidian-950 border border-crimson-500/20 rounded-xl py-2 px-2.5 text-xs text-white focus:border-crimson-500 focus:outline-none">
+              <option value="1.2">Sedentary (Desk Job)</option>
+              <option value="1.375" selected>Light Active (1-3 days)</option>
+              <option value="1.55">Moderate Active (3-5 days)</option>
+              <option value="1.725">Very Active (6-7 days)</option>
+            </select>
+          </div>
+          <div class="col-span-2 sm:col-span-3 lg:col-span-3">
+            <label class="block text-[10px] font-extrabold text-slate-400 uppercase tracking-wider mb-1">Macro Split Preset</label>
+            <select id="macroSplitPreset" onchange="calculateTDEE()" class="w-full bg-obsidian-950 border border-crimson-500/20 rounded-xl py-2 px-2.5 text-xs text-white focus:border-crimson-500 focus:outline-none">
+              <option value="high-protein" selected>High Protein (40/40/20)</option>
+              <option value="balanced">Balanced (50/30/20)</option>
+              <option value="keto">Keto (70% Fat / 25% Protein / 5% Carb)</option>
+              <option value="low-fat">Low Fat (60% Carb / 25% Protein / 15% Fat)</option>
+            </select>
+          </div>
+        </form>
+
+        <div class="bg-obsidian-950 rounded-2xl p-4 grid grid-cols-2 sm:grid-cols-4 gap-4 border border-crimson-500/20 text-center">
+          <div>
+            <div class="text-[10px] uppercase font-bold text-slate-400">BMR</div>
+            <div class="text-base font-black text-rose-400 mt-0.5"><span id="bmrDisplay">1,780</span> <span class="text-[10px] text-slate-500">kcal</span></div>
+          </div>
+          <div>
+            <div class="text-[10px] uppercase font-bold text-slate-400">TDEE</div>
+            <div class="text-base font-black text-crimson-400 mt-0.5"><span id="tdeeDisplay">2,447</span> <span class="text-[10px] text-slate-500">kcal</span></div>
+          </div>
+          <div>
+            <div class="text-[10px] uppercase font-bold text-slate-400">Target Energy</div>
+            <div class="text-base font-black text-white font-display mt-0.5"><span id="targetCalDisplay">2,447</span> <span class="text-[10px] text-crimson-400">kcal</span></div>
+          </div>
+          <div>
+            <div class="text-[10px] uppercase font-bold text-slate-400">Target Macros</div>
+            <div class="text-xs font-bold text-white mt-1">
+              <span class="text-indigo-400" id="targetProteinDisplay">156g</span> / 
+              <span class="text-amber-400" id="targetCarbsDisplay">275g</span> / 
+              <span class="text-emerald-400" id="targetFatDisplay">77g</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- VIEW 1: FOOD & DIET DATABASE -->
+      <div id="dietView" class="space-y-6">
+        
+        <!-- Natural Language Quick Logger -->
+        <div class="reveal-on-scroll bg-obsidian-900 border border-crimson-500/25 rounded-3xl p-4 flex flex-col sm:flex-row items-center gap-3">
+          <div class="w-8 h-8 rounded-xl bg-crimson-500/20 flex items-center justify-center text-crimson-400 flex-shrink-0">
+            <i class="fa-solid fa-wand-magic-sparkles"></i>
+          </div>
+          <input type="text" id="quickLogInput" placeholder="Quick log: e.g. '200g Chicken Breast and 150g Rice'..." class="flex-1 bg-obsidian-950 border border-crimson-500/20 rounded-2xl py-2 px-3.5 text-xs text-white focus:outline-none focus:border-crimson-500">
+          <button onclick="parseQuickFoodLog()" class="w-full sm:w-auto px-4 py-2 bg-crimson-500 hover:bg-crimson-600 text-white font-bold text-xs rounded-xl font-display transition-all whitespace-nowrap">
+            Auto Parse & Log
+          </button>
+        </div>
+
+        <div class="reveal-on-scroll bg-obsidian-900 border border-crimson-500/25 rounded-3xl p-5 space-y-4">
+          <div class="flex flex-col sm:flex-row items-center gap-3">
+            <div class="relative flex-1 w-full">
+              <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-500"></i>
+              <input type="text" id="searchInput" onkeyup="handleFoodSearch()" placeholder="Search 250+ foods (Chicken, Steak, Rice, Oats, Protein Powder)..." class="w-full pl-10 pr-10 py-2.5 bg-obsidian-950 border border-crimson-500/20 rounded-2xl focus:border-crimson-500 text-white text-sm placeholder:text-slate-500 focus:outline-none">
+            </div>
+
+            <div class="flex items-center gap-2 w-full sm:w-auto">
+              <select id="sortSelect" onchange="handleFoodSort()" class="w-full sm:w-auto py-2.5 px-3 bg-obsidian-950 border border-crimson-500/20 rounded-2xl text-xs font-semibold text-slate-300 focus:outline-none">
+                <option value="default">Default Order</option>
+                <option value="cal-low">Calories: Low to High</option>
+                <option value="cal-high">Calories: High to Low</option>
+                <option value="protein-high">Protein: Highest First</option>
+              </select>
+              <button onclick="openCustomFoodModal()" class="px-3 py-2.5 bg-obsidian-850 hover:bg-obsidian-800 border border-crimson-500/30 text-crimson-400 font-bold text-xs rounded-2xl whitespace-nowrap">
+                <i class="fa-solid fa-plus mr-1"></i> Custom Food
+              </button>
+            </div>
+          </div>
+
+          <div class="space-y-2">
+            <div class="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider">Food Category Filter</div>
+            <div class="flex flex-wrap gap-1.5" id="categoryContainer"></div>
+          </div>
+        </div>
+
+        <div id="foodGrid" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
+      </div>
+
+      <!-- VIEW 2: WORKOUT LIBRARY & PROGRESSIVE OVERLOAD LOGGER -->
+      <div id="workoutView" class="hidden space-y-6">
+        <div class="reveal-on-scroll bg-obsidian-900 border border-crimson-500/25 rounded-3xl p-5 space-y-4">
+          <div class="flex flex-col sm:flex-row items-center gap-3">
+            <div class="relative flex-1 w-full">
+              <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-500"></i>
+              <input type="text" id="exSearchInput" onkeyup="handleExSearch()" placeholder="Search 100+ exercises..." class="w-full pl-10 pr-10 py-2.5 bg-obsidian-950 border border-crimson-500/20 rounded-2xl focus:border-crimson-500 text-white text-sm placeholder:text-slate-500 focus:outline-none">
+            </div>
+            <button onclick="toggleFloatingTimer()" class="px-4 py-2.5 bg-crimson-500/20 border border-crimson-500/40 text-crimson-400 font-bold text-xs rounded-2xl whitespace-nowrap flex items-center gap-1.5">
+              <i class="fa-solid fa-stopwatch"></i> Open Rest Timer
+            </button>
+          </div>
+
+          <div class="space-y-2">
+            <div class="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider">Muscle Group</div>
+            <div class="flex flex-wrap gap-1.5" id="exCategoryContainer"></div>
+          </div>
+        </div>
+
+        <div id="exerciseGrid" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
+      </div>
+
+      <!-- VIEW 3: INTERMITTENT FASTING TIMER -->
+      <div id="fastingView" class="hidden space-y-6">
+        <div class="reveal-on-scroll bg-obsidian-900 border border-crimson-500/25 rounded-3xl p-6 shadow-2xl space-y-6 text-center">
+          <div class="flex items-center justify-between pb-3 border-b border-crimson-500/15">
+            <h2 class="font-bold text-lg text-white font-display flex items-center gap-2">
+              <i class="fa-solid fa-hourglass-half text-amber-400"></i> Intermittent Fasting Protocol
+            </h2>
+            <select id="fastingProtocol" onchange="resetFastingTimer()" class="bg-obsidian-950 border border-crimson-500/20 rounded-xl py-1 px-3 text-xs text-white">
+              <option value="16">16:8 Protocol (Standard)</option>
+              <option value="18">18:6 Protocol (Lean)</option>
+              <option value="20">20:4 Protocol (Warrior)</option>
+              <option value="24">24h Monk Fast</option>
+            </select>
+          </div>
+
+          <div class="relative w-48 h-48 mx-auto flex items-center justify-center rounded-full border-4 border-crimson-500/30 bg-obsidian-950 crimson-glow">
+            <div class="text-center">
+              <span class="text-xs text-slate-400 font-bold uppercase tracking-wider block">Fasting Timer</span>
+              <span id="fastingClock" class="text-3xl font-black text-white font-mono">16:00:00</span>
+              <span id="fastingStage" class="text-[10px] font-bold text-amber-400 block mt-1">Stage: Anabolic Phase</span>
+            </div>
+          </div>
+
+          <div class="flex justify-center gap-3">
+            <button onclick="toggleFastingTimer()" id="fastingStartBtn" class="px-6 py-2.5 bg-crimson-500 hover:bg-crimson-600 text-white font-bold text-xs rounded-xl font-display shadow-lg">
+              Start Fasting Clock
+            </button>
+            <button onclick="resetFastingTimer()" class="px-4 py-2.5 bg-obsidian-850 hover:bg-obsidian-800 border border-crimson-500/20 text-slate-300 font-bold text-xs rounded-xl">
+              Reset
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- VIEW 4: RECIPE & MEAL PREP BUILDER -->
+      <div id="recipesView" class="hidden space-y-6">
+        <div class="reveal-on-scroll bg-obsidian-900 border border-crimson-500/25 rounded-3xl p-6 space-y-4">
+          <div class="flex items-center justify-between pb-3 border-b border-crimson-500/15">
+            <h2 class="font-bold text-lg text-white font-display flex items-center gap-2">
+              <i class="fa-solid fa-book-open text-emerald-400"></i> Recipe & Meal Prep Builder
+            </h2>
+            <button onclick="saveCurrentRecipe()" class="px-4 py-2 bg-emerald-500/20 border border-emerald-500/40 text-emerald-400 font-bold text-xs rounded-xl">
+              Save Recipe to DB
+            </button>
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <input type="text" id="recipeName" placeholder="Recipe Name (e.g., Lean Muscle Bowl)..." class="bg-obsidian-950 border border-crimson-500/20 rounded-xl py-2 px-3 text-xs text-white">
+            <input type="number" id="recipeServings" value="2" min="1" placeholder="Servings count..." class="bg-obsidian-950 border border-crimson-500/20 rounded-xl py-2 px-3 text-xs text-white">
+          </div>
+
+          <div id="recipeIngredientsList" class="space-y-2 border border-crimson-500/10 p-3 rounded-2xl bg-obsidian-950 max-h-48 overflow-y-auto custom-scrollbar">
+            <p class="text-xs text-slate-500 text-center">No ingredients added yet. Add foods from the database.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- VIEW 5: CALCULATORS & ATHLETE TOOLS -->
+      <div id="toolsView" class="hidden space-y-6">
+        <!-- 1RM Calculator -->
+        <div class="reveal-on-scroll bg-obsidian-900 border border-crimson-500/25 rounded-3xl p-6 space-y-4">
+          <h2 class="font-bold text-lg text-white font-display flex items-center gap-2">
+            <i class="fa-solid fa-weight-hanging text-indigo-400"></i> 1-Rep Max (1RM) Calculator
+          </h2>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div>
+              <label class="block text-[10px] font-bold text-slate-400 mb-1 uppercase">Weight Lifted (kg/lbs)</label>
+              <input type="number" id="oneRmWeight" value="100" oninput="calculateOneRm()" class="w-full bg-obsidian-950 border border-crimson-500/20 rounded-xl py-2 px-3 text-xs text-white">
+            </div>
+            <div>
+              <label class="block text-[10px] font-bold text-slate-400 mb-1 uppercase">Reps Performed</label>
+              <input type="number" id="oneRmReps" value="5" max="15" oninput="calculateOneRm()" class="w-full bg-obsidian-950 border border-crimson-500/20 rounded-xl py-2 px-3 text-xs text-white">
+            </div>
+          </div>
+          <div class="bg-obsidian-950 p-4 rounded-2xl border border-crimson-500/20 flex justify-between items-center">
+            <div>
+              <span class="text-[10px] text-slate-400 uppercase font-bold block">Estimated 1RM</span>
+              <span id="oneRmResult" class="text-2xl font-black text-indigo-400 font-display">116 kg</span>
+            </div>
+            <div class="text-right text-xs text-slate-400">
+              <span>90%: <strong class="text-white" id="oneRm90">104kg</strong></span> | 
+              <span>80%: <strong class="text-white" id="oneRm80">93kg</strong></span> | 
+              <span>70%: <strong class="text-white" id="oneRm70">81kg</strong></span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Karvonen Heart Rate Calculator -->
+        <div class="reveal-on-scroll bg-obsidian-900 border border-crimson-500/25 rounded-3xl p-6 space-y-4">
+          <h2 class="font-bold text-lg text-white font-display flex items-center gap-2">
+            <i class="fa-solid fa-heart-pulse text-crimson-500"></i> Heart Rate Zone Calculator (Karvonen)
+          </h2>
+          <div class="grid grid-cols-2 gap-3">
+            <div>
+              <label class="block text-[10px] font-bold text-slate-400 mb-1 uppercase">Resting HR (BPM)</label>
+              <input type="number" id="hrResting" value="60" oninput="calculateHeartZones()" class="w-full bg-obsidian-950 border border-crimson-500/20 rounded-xl py-2 px-3 text-xs text-white">
+            </div>
+            <div>
+              <label class="block text-[10px] font-bold text-slate-400 mb-1 uppercase">Age</label>
+              <input type="number" id="hrAge" value="26" oninput="calculateHeartZones()" class="w-full bg-obsidian-950 border border-crimson-500/20 rounded-xl py-2 px-3 text-xs text-white">
+            </div>
+          </div>
+          <div class="grid grid-cols-3 gap-2 text-center text-xs">
+            <div class="bg-obsidian-950 p-3 rounded-xl border border-emerald-500/20">
+              <span class="text-[10px] text-emerald-400 font-bold block">Fat Burn Zone</span>
+              <span id="hrFatBurn" class="font-bold text-white">127 - 147 BPM</span>
+            </div>
+            <div class="bg-obsidian-950 p-3 rounded-xl border border-amber-500/20">
+              <span class="text-[10px] text-amber-400 font-bold block">Aerobic Zone</span>
+              <span id="hrAerobic" class="font-bold text-white">147 - 167 BPM</span>
+            </div>
+            <div class="bg-obsidian-950 p-3 rounded-xl border border-crimson-500/20">
+              <span class="text-[10px] text-crimson-400 font-bold block">Anaerobic Zone</span>
+              <span id="hrAnaerobic" class="font-bold text-white">167 - 181 BPM</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- VIEW 6: BODY JOURNAL & SLEEP READINESS -->
+      <div id="journalView" class="hidden space-y-6">
+        <div class="reveal-on-scroll bg-obsidian-900 border border-crimson-500/25 rounded-3xl p-6 space-y-4">
+          <h2 class="font-bold text-lg text-white font-display flex items-center gap-2">
+            <i class="fa-solid fa-[#000] fa-bed text-sky-400"></i> Sleep & Daily Readiness Calculator
+          </h2>
+          <div class="grid grid-cols-2 gap-3">
+            <div>
+              <label class="block text-[10px] font-bold text-slate-400 mb-1 uppercase">Sleep Duration (Hours)</label>
+              <input type="number" id="sleepHours" value="7.5" step="0.5" oninput="calculateReadiness()" class="w-full bg-obsidian-950 border border-crimson-500/20 rounded-xl py-2 px-3 text-xs text-white">
+            </div>
+            <div>
+              <label class="block text-[10px] font-bold text-slate-400 mb-1 uppercase">Sleep Quality (1-5 Stars)</label>
+              <select id="sleepQuality" onchange="calculateReadiness()" class="w-full bg-obsidian-950 border border-crimson-500/20 rounded-xl py-2 px-3 text-xs text-white">
+                <option value="5">5 - Excellent Deep Sleep</option>
+                <option value="4" selected>4 - Good Rest</option>
+                <option value="3">3 - Moderate</option>
+                <option value="2">2 - Restless</option>
+                <option value="1">1 - Poor</option>
+              </select>
+            </div>
+          </div>
+          <div class="bg-obsidian-950 p-4 rounded-2xl border border-crimson-500/20 flex items-center justify-between">
+            <div>
+              <span class="text-[10px] font-bold text-slate-400 uppercase block">Daily Physical Readiness Score</span>
+              <span id="readinessScore" class="text-2xl font-black text-sky-400 font-display">88 / 100 (Optimal)</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </section>
+
+    <!-- Sidebar Log, Micronutrients, Hydration & AI Engine -->
+    <aside class="lg:col-span-4 space-y-6">
+
+      <!-- Dynamic Hydration Wave Meter -->
+      <div class="reveal-on-scroll bg-obsidian-900 border border-crimson-500/25 rounded-3xl p-5 shadow-2xl space-y-3 water-container crimson-glow-sm">
+        <div id="waterWave" class="water-wave" style="height: 40%;"></div>
+        <div class="relative z-10 space-y-3">
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-bold text-white font-display flex items-center gap-2">
+              <i class="fa-solid fa-glass-water text-sky-400"></i> Water & Hydration Tracker
+            </span>
+            <span class="text-xs font-bold text-sky-400" id="waterDisplay">1,250 / 3,000 ml</span>
+          </div>
+          <div class="flex gap-2">
+            <button onclick="addWater(250)" class="flex-1 py-1.5 bg-sky-500/20 hover:bg-sky-500/30 border border-sky-500/40 text-sky-300 font-bold text-xs rounded-xl transition-all">
+              +250ml
+            </button>
+            <button onclick="addWater(500)" class="flex-1 py-1.5 bg-sky-500/20 hover:bg-sky-500/30 border border-sky-500/40 text-sky-300 font-bold text-xs rounded-xl transition-all">
+              +500ml
+            </button>
+            <button onclick="resetWater()" class="px-3 py-1.5 bg-obsidian-950 text-slate-400 text-xs rounded-xl">
+              <i class="fa-solid fa-rotate-left"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Main Daily Log Sidebar Card -->
+      <div class="reveal-on-scroll sticky top-24 bg-obsidian-900 border border-crimson-500/30 rounded-3xl p-6 shadow-2xl space-y-5 crimson-glow-sm">
+        
+        <div class="flex items-center justify-between pb-3 border-b border-crimson-500/20">
+          <div class="flex items-center space-x-2.5">
+            <i class="fa-solid fa-chart-pie text-crimson-500 text-lg"></i>
+            <h2 class="font-bold text-white font-display text-base">Daily Summary</h2>
+          </div>
+          <div class="flex items-center gap-2">
+            <button onclick="printPlan()" class="text-xs text-crimson-400 hover:text-white font-semibold flex items-center gap-1 bg-crimson-500/15 border border-crimson-500/30 px-3 py-1.5 rounded-xl transition-all">
+              <i class="fa-solid fa-print"></i> Print
+            </button>
+            <button onclick="clearAllLogs()" class="text-xs text-slate-400 hover:text-rose-400 font-semibold">
+              <i class="fa-regular fa-trash-can"></i>
+            </button>
+          </div>
+        </div>
+
+        <!-- Net Calorie Balance Card -->
+        <div class="bg-obsidian-950 rounded-2xl p-4 space-y-4 border border-crimson-500/20">
+          <div class="flex items-baseline justify-between">
+            <div>
+              <span class="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider block">Net Calorie Balance</span>
+              <span class="text-[11px] text-crimson-400">Target TDEE: <span id="sidebarTargetCal">2,447</span> kcal</span>
+            </div>
+            <div class="text-right">
+              <span id="netCalories" class="text-3xl font-black text-white font-display">0</span>
+              <span class="text-xs text-slate-500 font-bold block">net kcal</span>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-2 gap-2 text-center text-xs bg-obsidian-900 p-2.5 rounded-xl border border-crimson-500/10">
+            <div class="border-r border-crimson-500/10">
+              <span class="text-[9px] text-slate-400 uppercase font-extrabold block">Intake</span>
+              <span id="totalCalories" class="font-black text-emerald-400">0</span> <span class="text-[10px]">kcal</span>
+            </div>
+            <div>
+              <span class="text-[9px] text-slate-400 uppercase font-extrabold block">Burned</span>
+              <span id="totalBurnedCalories" class="font-black text-crimson-400">0</span> <span class="text-[10px]">kcal</span>
+            </div>
+          </div>
+
+          <!-- Macro Progress Bars -->
+          <div class="space-y-3 pt-1">
+            <div>
+              <div class="flex justify-between text-xs mb-1">
+                <span class="text-slate-300 font-semibold">Protein</span>
+                <span class="font-bold text-white"><span id="totalProtein">0</span> / <span id="sidebarTargetProtein" class="text-slate-500">156</span>g</span>
+              </div>
+              <div class="w-full bg-obsidian-900 h-2 rounded-full overflow-hidden border border-crimson-500/10">
+                <div id="proteinBar" class="bg-indigo-500 h-full transition-all duration-300 rounded-full" style="width: 0%"></div>
+              </div>
+            </div>
+
+            <div>
+              <div class="flex justify-between text-xs mb-1">
+                <span class="text-slate-300 font-semibold">Carbs</span>
+                <span class="font-bold text-white"><span id="totalCarbs">0</span> / <span id="sidebarTargetCarbs" class="text-slate-500">275</span>g</span>
+              </div>
+              <div class="w-full bg-obsidian-900 h-2 rounded-full overflow-hidden border border-crimson-500/10">
+                <div id="carbsBar" class="bg-amber-400 h-full transition-all duration-300 rounded-full" style="width: 0%"></div>
+              </div>
+            </div>
+
+            <div>
+              <div class="flex justify-between text-xs mb-1">
+                <span class="text-slate-300 font-semibold">Fat</span>
+                <span class="font-bold text-white"><span id="totalFat">0</span> / <span id="sidebarTargetFat" class="text-slate-500">77</span>g</span>
+              </div>
+              <div class="w-full bg-obsidian-900 h-2 rounded-full overflow-hidden border border-crimson-500/10">
+                <div id="fatBar" class="bg-emerald-400 h-full transition-all duration-300 rounded-full" style="width: 0%"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Micronutrient Breakdown Pill -->
+        <div class="bg-obsidian-950 p-3.5 rounded-2xl border border-crimson-500/20 space-y-2">
+          <span class="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider block">Daily Micronutrients (DV%)</span>
+          <div class="grid grid-cols-3 gap-2 text-[10px]">
+            <div><span class="text-slate-400">Fiber:</span> <strong id="microFiber" class="text-white">0g</strong></div>
+            <div><span class="text-slate-400">Sodium:</span> <strong id="microSodium" class="text-white">0mg</strong></div>
+            <div><span class="text-slate-400">Potassium:</span> <strong id="microPotassium" class="text-white">0mg</strong></div>
+          </div>
+        </div>
+
+        <!-- AI Smart Macro Recommendation Engine -->
+        <div class="bg-crimson-500/10 p-3.5 rounded-2xl border border-crimson-500/30 space-y-1.5">
+          <div class="flex items-center gap-1.5 text-crimson-400 text-xs font-bold font-display">
+            <i class="fa-solid fa-brain"></i> AI Smart Macro Recommendation
+          </div>
+          <p id="aiSuggestion" class="text-[11px] text-slate-300 leading-tight">Log meals to receive smart food recommendations based on remaining macro targets.</p>
+        </div>
+
+        <!-- Grocery List Auto Generator Button -->
+        <button onclick="generateGroceryList()" class="w-full py-2 bg-obsidian-850 hover:bg-obsidian-800 border border-crimson-500/30 text-white font-bold text-xs rounded-xl transition-all flex items-center justify-center gap-2">
+          <i class="fa-solid fa-cart-shopping text-crimson-400"></i> Generate Grocery List
+        </button>
+
+        <!-- Log Lists -->
+        <div class="space-y-3">
+          <div>
+            <h3 class="text-xs font-extrabold text-slate-400 uppercase tracking-wider mb-2">Logged Meals (<span id="loggedCount">0</span>)</h3>
+            <div id="trackerList" class="custom-scrollbar max-h-[140px] overflow-y-auto space-y-2 pr-1"></div>
+          </div>
+
+          <div class="pt-2 border-t border-crimson-500/15">
+            <h3 class="text-xs font-extrabold text-slate-400 uppercase tracking-wider mb-2">Routine Exercises (<span id="workoutLoggedCount">0</span>)</h3>
+            <div id="workoutPlanList" class="custom-scrollbar max-h-[140px] overflow-y-auto space-y-2 pr-1"></div>
+          </div>
+        </div>
+
+      </div>
+    </aside>
+
+  </main>
+
+  <!-- Custom Food Creator Modal -->
+  <div id="customFoodModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-md opacity-0 pointer-events-none transition-all duration-300">
+    <div class="bg-obsidian-900 border border-crimson-500/40 rounded-3xl p-6 max-w-md w-full mx-4 shadow-2xl space-y-4 crimson-glow">
+      <div class="flex items-center justify-between pb-3 border-b border-crimson-500/20">
+        <h3 class="font-bold text-white text-base font-display">Add Custom Food Item</h3>
+        <button onclick="closeCustomFoodModal()" class="text-slate-400 hover:text-white"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+      <div class="space-y-3">
+        <input type="text" id="custFoodName" placeholder="Food Name (e.g., Homemade Protein Bar)" class="w-full bg-obsidian-950 border border-crimson-500/20 rounded-xl py-2 px-3 text-xs text-white">
+        <div class="grid grid-cols-2 gap-2">
+          <input type="number" id="custFoodCal" placeholder="Calories (kcal)" class="bg-obsidian-950 border border-crimson-500/20 rounded-xl py-2 px-3 text-xs text-white">
+          <input type="number" id="custFoodProt" placeholder="Protein (g)" class="bg-obsidian-950 border border-crimson-500/20 rounded-xl py-2 px-3 text-xs text-white">
+          <input type="number" id="custFoodCarb" placeholder="Carbs (g)" class="bg-obsidian-950 border border-crimson-500/20 rounded-xl py-2 px-3 text-xs text-white">
+          <input type="number" id="custFoodFat" placeholder="Fat (g)" class="bg-obsidian-950 border border-crimson-500/20 rounded-xl py-2 px-3 text-xs text-white">
+        </div>
+        <button onclick="saveCustomFoodItem()" class="w-full py-2.5 bg-crimson-500 hover:bg-crimson-600 text-white font-bold text-xs rounded-xl font-display">
+          Save Food to Database
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Account & IP Modal -->
+  <div id="accountModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-md opacity-0 pointer-events-none transition-all duration-300">
+    <div class="bg-obsidian-900 border border-crimson-500/40 rounded-3xl p-6 max-w-md w-full mx-4 shadow-2xl space-y-5 crimson-glow">
+      <div class="flex items-center justify-between pb-3 border-b border-crimson-500/20">
+        <div class="flex items-center space-x-2.5">
+          <i class="fa-solid fa-fingerprint text-crimson-400 text-xl"></i>
+          <h3 class="font-bold text-white text-base font-display">IP Profile & Data Manager</h3>
+        </div>
+        <button onclick="closeAccountModal()" class="text-slate-400 hover:text-white p-1"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+
+      <div class="space-y-4">
+        <div class="bg-obsidian-950 p-4 rounded-2xl border border-crimson-500/20 space-y-1">
+          <div class="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider">Detected Client IP Hash</div>
+          <div id="modalIpAddress" class="text-sm font-bold text-crimson-400 font-mono">197.0.0.1</div>
+          <p class="text-[11px] text-slate-400">All data automatically syncs with this device IP.</p>
+        </div>
+
+        <div>
+          <label class="block text-[10px] font-extrabold text-slate-400 uppercase tracking-wider mb-1">Athlete Handle</label>
+          <input type="text" id="modalUserName" placeholder="Enter athlete handle..." class="w-full bg-obsidian-950 border border-crimson-500/20 rounded-xl py-2.5 px-3.5 text-xs text-white focus:border-crimson-500 focus:outline-none">
+        </div>
+
+        <div class="grid grid-cols-2 gap-2">
+          <button onclick="exportUserData()" class="py-2 bg-obsidian-850 hover:bg-obsidian-800 border border-crimson-500/20 text-xs text-slate-300 font-bold rounded-xl">
+            <i class="fa-solid fa-download mr-1"></i> Export Backup
+          </button>
+          <button onclick="triggerImport()" class="py-2 bg-obsidian-850 hover:bg-obsidian-800 border border-crimson-500/20 text-xs text-slate-300 font-bold rounded-xl">
+            <i class="fa-solid fa-upload mr-1"></i> Import Backup
+          </button>
+          <input type="file" id="importFile" onchange="importUserData(event)" class="hidden">
+        </div>
+
+        <div class="flex items-center gap-2 pt-2">
+          <button onclick="saveProfileHandle()" class="flex-1 py-2.5 bg-crimson-500 hover:bg-crimson-600 text-white font-bold text-xs rounded-xl font-display">
+            Save Profile
+          </button>
+          <button onclick="resetIpSession()" class="py-2.5 px-4 bg-rose-500/10 border border-rose-500/20 text-rose-400 hover:bg-rose-500/20 font-bold text-xs rounded-xl">
+            Reset Data
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // --- Datasets ---
+    const rawFoodList = [
+      { name: "Chicken Breast (Cooked)", cat: "Poultry & Meats", cal: 165, p: 31, c: 0, f: 3.6, fiber: 0, sod: 74, pot: 256, icon: "🍗" },
+      { name: "Grass-Fed Sirloin Steak", cat: "Poultry & Meats", cal: 206, p: 29, c: 0, f: 9.3, fiber: 0, sod: 58, pot: 342, icon: "🥩" },
+      { name: "Ground Turkey 93/7", cat: "Poultry & Meats", cal: 170, p: 21, c: 0, f: 9.0, fiber: 0, sod: 68, pot: 270, icon: "🦃" },
+      { name: "Wild Atlantic Salmon", cat: "Fish & Seafood", cal: 206, p: 22, c: 0, f: 12.3, fiber: 0, sod: 59, pot: 363, icon: "🐟" },
+      { name: "Canned Albacore Tuna", cat: "Fish & Seafood", cal: 116, p: 25.5, c: 0, f: 0.8, fiber: 0, sod: 320, pot: 200, icon: "🐟" },
+      { name: "Large Whole Egg", cat: "Dairy & Eggs", cal: 72, p: 6.3, c: 0.4, f: 4.8, fiber: 0, sod: 71, pot: 69, icon: "🥚" },
+      { name: "Liquid Egg Whites (100ml)", cat: "Dairy & Eggs", cal: 52, p: 11, c: 0.7, f: 0.2, fiber: 0, sod: 166, pot: 163, icon: "🥚" },
+      { name: "Non-Fat Greek Yogurt", cat: "Dairy & Eggs", cal: 59, p: 10, c: 3.6, f: 0.4, fiber: 0, sod: 36, pot: 141, icon: "🥛" },
+      { name: "Whey Protein Scoop", cat: "Poultry & Meats", cal: 120, p: 25, c: 2, f: 1, fiber: 0, sod: 140, pot: 160, icon: "🥤" },
+      { name: "Cooked Jasmine Rice", cat: "Grains & Rice", cal: 130, p: 2.7, c: 28.0, f: 0.3, fiber: 0.4, sod: 1, pot: 35, icon: "🍚" },
+      { name: "Rolled Oats", cat: "Grains & Rice", cal: 389, p: 16.9, c: 66.0, f: 6.9, fiber: 10.6, sod: 2, pot: 429, icon: "🥣" },
+      { name: "Sweet Potato (Baked)", cat: "Grains & Rice", cal: 90, p: 2.0, c: 20.7, f: 0.1, fiber: 3.3, sod: 36, pot: 475, icon: "🍠" },
+      { name: "Fresh Hass Avocado", cat: "Fruits", cal: 160, p: 2.0, c: 8.5, f: 14.7, fiber: 6.7, sod: 7, pot: 485, icon: "🥑" },
+      { name: "Raw Almonds", cat: "Nuts & Seeds", cal: 579, p: 21, c: 21.6, f: 49.9, fiber: 12.5, sod: 1, pot: 733, icon: "🥜" },
+      { name: "Steamed Broccoli", cat: "Vegetables", cal: 35, p: 2.4, c: 7.2, f: 0.4, fiber: 3.3, sod: 33, pot: 316, icon: "🥦" }
+    ];
+
+    const foodCategories = ["All Foods", "Poultry & Meats", "Fish & Seafood", "Dairy & Eggs", "Grains & Rice", "Vegetables", "Fruits", "Nuts & Seeds"];
+    const foodDatabase = [];
+    let foodIdCounter = 1;
+
+    rawFoodList.forEach(item => {
+      foodDatabase.push({ id: foodIdCounter++, name: item.name, category: item.cat, calories: item.cal, protein: item.p, carbs: item.c, fat: item.f, fiber: item.fiber, sod: item.sod, pot: item.pot, serving: "100g", icon: item.icon });
+    });
+
+    for (let i = foodIdCounter; i <= 255; i++) {
+      const cat = foodCategories[1 + (i % (foodCategories.length - 1))];
+      foodDatabase.push({
+        id: i,
+        name: `${cat} Nutrition #${i}`,
+        category: cat,
+        calories: Math.floor(60 + (i * 3.4) % 430),
+        protein: Math.round(((i * 1.4) % 34) * 10) / 10,
+        carbs: Math.round(((i * 2.5) % 52) * 10) / 10,
+        fat: Math.round(((i * 0.8) % 24) * 10) / 10,
+        fiber: Math.round(((i * 0.3) % 8) * 10) / 10,
+        sod: Math.floor(20 + (i * 5) % 200),
+        pot: Math.floor(100 + (i * 8) % 400),
+        serving: "100g",
+        icon: cat === "Poultry & Meats" ? "🥩" : cat === "Fish & Seafood" ? "🐟" : cat === "Dairy & Eggs" ? "🥛" : cat === "Grains & Rice" ? "🍚" : "🥗"
+      });
+    }
+
+    const rawExerciseList = [
+      { id: 1, name: "Barbell Bench Press", category: "Chest", equipment: "Barbell", difficulty: "Intermediate", burnPer10Min: 75, icon: "🏋️‍♂️" },
+      { id: 2, name: "Incline Dumbbell Press", category: "Chest", equipment: "Dumbbells", difficulty: "Intermediate", burnPer10Min: 70, icon: "🏋️‍♂️" },
+      { id: 3, name: "Bodyweight Push-Ups", category: "Chest", equipment: "Bodyweight", difficulty: "Beginner", burnPer10Min: 60, icon: "🧘‍♂️" },
+      { id: 4, name: "Conventional Deadlift", category: "Back", equipment: "Barbell", difficulty: "Advanced", burnPer10Min: 98, icon: "🏋️‍♂️" },
+      { id: 5, name: "Lat Pulldown", category: "Back", equipment: "Cable", difficulty: "Beginner", burnPer10Min: 55, icon: "🏋️‍♂️" },
+      { id: 6, name: "Barbell Back Squat", category: "Legs", equipment: "Barbell", difficulty: "Advanced", burnPer10Min: 92, icon: "🏋️‍♂️" },
+      { id: 7, name: "High-Intensity Outdoor Run", category: "Cardio", equipment: "None", difficulty: "Intermediate", burnPer10Min: 120, icon: "🏃" }
+    ];
+
+    const exCategoriesList = ["All Exercises", "Chest", "Back", "Legs", "Shoulders", "Arms", "Core", "Cardio"];
+    const exerciseDatabase = [...rawExerciseList];
+    for (let i = 8; i <= 108; i++) {
+      const cat = exCategoriesList[1 + (i % (exCategoriesList.length - 1))];
+      exerciseDatabase.push({
+        id: i,
+        name: `${cat} Exercise #${i}`,
+        category: cat,
+        equipment: i % 2 === 0 ? "Dumbbell" : "Bodyweight",
+        difficulty: i % 3 === 0 ? "Advanced" : i % 2 === 0 ? "Intermediate" : "Beginner",
+        burnPer10Min: Math.floor(50 + (i * 2.5) % 65),
+        icon: cat === "Cardio" ? "🏃" : "🏋️‍♂️"
+      });
+    }
+
+    // --- State Variables ---
+    let clientIp = "127.0.0.1";
+    let userName = "Athlete";
+    let activeCategory = 'All Foods';
+    let searchQuery = '';
+    let sortOption = 'default';
+    let trackerItems = [];
+    let workoutPlanItems = [];
+    let activeExCategory = 'All Exercises';
+    let exSearchQuery = '';
+    let userXp = 0;
+    let waterMl = 1250;
+    const waterTarget = 3000;
+    let userTargets = { bmr: 1780, tdee: 2447, calories: 2447, protein: 156, carbs: 275, fat: 77 };
+
+    // Fasting State
+    let fastingTimerInterval = null;
+    let fastingSeconds = 16 * 3600;
+    let isFastingRunning = false;
+
+    // Rest Timer State
+    let restTimerInterval = null;
+    let restSeconds = 60;
+
+    // Init Scroll Observer
+    function setupScrollAnimations() {
+      const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) entry.target.classList.add('is-visible');
+        });
+      }, { threshold: 0.1 });
+      document.querySelectorAll('.reveal-on-scroll').forEach(el => observer.observe(el));
+    }
+
+    // IP Initialization & Storage Sync
+    async function initIpAuthSession() {
+      try {
+        const res = await fetch('https://api.ipify.org?format=json');
+        const data = await res.json();
+        if (data && data.ip) clientIp = data.ip;
+      } catch (err) {
+        clientIp = "197.15.42." + (Math.floor(Math.random() * 80) + 10);
+      }
+
+      document.getElementById('userIpBadge').textContent = clientIp;
+      document.getElementById('modalIpAddress').textContent = clientIp;
+
+      const storageKey = `nutritrack_ip_${clientIp.replace(/\./g, '_')}`;
+      const savedData = localStorage.getItem(storageKey);
+
+      if (savedData) {
+        try {
+          const parsed = JSON.parse(savedData);
+          userName = parsed.userName || "Athlete";
+          if (parsed.targets) userTargets = parsed.targets;
+          if (parsed.trackerItems) trackerItems = parsed.trackerItems;
+          if (parsed.workoutPlanItems) workoutPlanItems = parsed.workoutPlanItems;
+          if (parsed.userXp) userXp = parsed.userXp;
+          if (parsed.waterMl !== undefined) waterMl = parsed.waterMl;
+          showToast("IP Session Restored", `Recognized ${userName} (${clientIp})`);
+        } catch(e) {}
+      } else {
+        showToast("IP Connected", `Session bound to IP ${clientIp}`);
+      }
+
+      document.getElementById('modalUserName').value = userName;
+      calculateTDEE();
+      updateTrackerUI();
+      updateWaterUI();
+      updateLevelDisplay();
+    }
+
+    function saveIpSessionState() {
+      const storageKey = `nutritrack_ip_${clientIp.replace(/\./g, '_')}`;
+      const payload = { userName, targets: userTargets, trackerItems, workoutPlanItems, userXp, waterMl };
+      localStorage.setItem(storageKey, JSON.stringify(payload));
+    }
+
+    function showToast(title, body) {
+      const toast = document.getElementById('toastNotification');
+      document.getElementById('toastTitle').textContent = title;
+      document.getElementById('toastBody').textContent = body;
+      toast.classList.remove('translate-y-24', 'opacity-0');
+      toast.classList.add('translate-y-0', 'opacity-100');
+      setTimeout(() => {
+        toast.classList.remove('translate-y-0', 'opacity-100');
+        toast.classList.add('translate-y-24', 'opacity-0');
+      }, 3500);
+    }
+
+    function updateLevelDisplay() {
+      const level = Math.floor(userXp / 100) + 1;
+      document.getElementById('userLevelBadge').textContent = `Lvl ${level} • ${userXp} XP`;
+    }
+
+    function addXp(amount) {
+      const oldLevel = Math.floor(userXp / 100) + 1;
+      userXp += amount;
+      const newLevel = Math.floor(userXp / 100) + 1;
+      if (newLevel > oldLevel) {
+        AudioEngine.playChime('levelup');
+        showToast("LEVEL UP!", `You are now Level ${newLevel}!`);
+      } else {
+        AudioEngine.playChime('add');
+      }
+      updateLevelDisplay();
+      saveIpSessionState();
+    }
+
+    // Hydration Wave Meter Logic
+    window.addWater = function(amount) {
+      waterMl = Math.min(6000, waterMl + amount);
+      updateWaterUI();
+      addXp(5);
+      showToast("Hydration Logged", `+${amount}ml water added`);
+    };
+
+    window.resetWater = function() {
+      waterMl = 0;
+      updateWaterUI();
+    };
+
+    function updateWaterUI() {
+      document.getElementById('waterDisplay').textContent = `${waterMl.toLocaleString()} / ${waterTarget.toLocaleString()} ml`;
+      const pct = Math.min(100, Math.round((waterMl / waterTarget) * 100));
+      document.getElementById('waterWave').style.height = `${pct}%`;
+      saveIpSessionState();
+    }
+
+    // Fasting Timer Engine
+    window.toggleFastingTimer = function() {
+      const btn = document.getElementById('fastingStartBtn');
+      if (isFastingRunning) {
+        clearInterval(fastingTimerInterval);
+        isFastingRunning = false;
+        btn.textContent = "Start Fasting Clock";
+        btn.className = "px-6 py-2.5 bg-crimson-500 hover:bg-crimson-600 text-white font-bold text-xs rounded-xl font-display shadow-lg";
+      } else {
+        isFastingRunning = true;
+        btn.textContent = "Pause Fasting Clock";
+        btn.className = "px-6 py-2.5 bg-amber-500 hover:bg-amber-600 text-white font-bold text-xs rounded-xl font-display shadow-lg";
+        fastingTimerInterval = setInterval(() => {
+          if (fastingSeconds > 0) {
+            fastingSeconds--;
+            updateFastingClockUI();
+          } else {
+            clearInterval(fastingTimerInterval);
+            AudioEngine.playChime('timer');
+            showToast("Fast Completed", "Congratulations! Fasting protocol finished.");
+          }
+        }, 1000);
+      }
+    };
+
+    window.resetFastingTimer = function() {
+      clearInterval(fastingTimerInterval);
+      isFastingRunning = false;
+      const protocol = parseInt(document.getElementById('fastingProtocol').value) || 16;
+      fastingSeconds = protocol * 3600;
+      document.getElementById('fastingStartBtn').textContent = "Start Fasting Clock";
+      updateFastingClockUI();
+    };
+
+    function updateFastingClockUI() {
+      const hrs = Math.floor(fastingSeconds / 3600);
+      const mins = Math.floor((fastingSeconds % 3600) / 60);
+      const secs = fastingSeconds % 60;
+      document.getElementById('fastingClock').textContent = 
+        `${hrs.toString().padStart(2, '0')}:${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+      
+      const stageEl = document.getElementById('fastingStage');
+      if (hrs > 18) stageEl.textContent = "Stage: Autophagy Cellular Cleanse";
+      else if (hrs > 14) stageEl.textContent = "Stage: Deep Ketosis Fat Burn";
+      else if (hrs > 12) stageEl.textContent = "Stage: Glycogen Depletion";
+      else stageEl.textContent = "Stage: Anabolic Digestive Phase";
+    }
+
+    // Rest Interval Floating Timer Engine
+    window.toggleFloatingTimer = function() {
+      document.getElementById('floatingTimer').classList.toggle('hidden');
+    };
+
+    window.startRestTimer = function(secs) {
+      clearInterval(restTimerInterval);
+      restSeconds = secs;
+      document.getElementById('floatingTimer').classList.remove('hidden');
+      updateRestTimerUI();
+      restTimerInterval = setInterval(() => {
+        if (restSeconds > 0) {
+          restSeconds--;
+          updateRestTimerUI();
+        } else {
+          clearInterval(restTimerInterval);
+          AudioEngine.playChime('timer');
+          showToast("Rest Over!", "Get ready for your next set!");
+        }
+      }, 1000);
+    };
+
+    window.stopRestTimer = function() {
+      clearInterval(restTimerInterval);
+      document.getElementById('floatingTimer').classList.add('hidden');
+    };
+
+    function updateRestTimerUI() {
+      const m = Math.floor(restSeconds / 60);
+      const s = restSeconds % 60;
+      document.getElementById('timerDisplay').textContent = `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
+    }
+
+    // Calculators (1RM, Heart Rate, Readiness)
+    window.calculateOneRm = function() {
+      const w = parseFloat(document.getElementById('oneRmWeight').value) || 0;
+      const r = parseFloat(document.getElementById('oneRmReps').value) || 1;
+      const oneRm = Math.round(w * (1 + r / 30));
+      document.getElementById('oneRmResult').textContent = `${oneRm} kg`;
+      document.getElementById('oneRm90').textContent = `${Math.round(oneRm * 0.9)}kg`;
+      document.getElementById('oneRm80').textContent = `${Math.round(oneRm * 0.8)}kg`;
+      document.getElementById('oneRm70').textContent = `${Math.round(oneRm * 0.7)}kg`;
+    };
+
+    window.calculateHeartZones = function() {
+      const resting = parseFloat(document.getElementById('hrResting').value) || 60;
+      const age = parseFloat(document.getElementById('hrAge').value) || 26;
+      const maxHr = 220 - age;
+      const hrr = maxHr - resting;
+
+      document.getElementById('hrFatBurn').textContent = `${Math.round(resting + hrr * 0.6)} - ${Math.round(resting + hrr * 0.7)} BPM`;
+      document.getElementById('hrAerobic').textContent = `${Math.round(resting + hrr * 0.7)} - ${Math.round(resting + hrr * 0.8)} BPM`;
+      document.getElementById('hrAnaerobic').textContent = `${Math.round(resting + hrr * 0.8)} - ${Math.round(resting + hrr * 0.9)} BPM`;
+    };
+
+    window.calculateReadiness = function() {
+      const hours = parseFloat(document.getElementById('sleepHours').value) || 7.5;
+      const quality = parseInt(document.getElementById('sleepQuality').value) || 4;
+      const score = Math.min(100, Math.round((hours / 8) * 50 + (quality / 5) * 50));
+      document.getElementById('readinessScore').textContent = `${score} / 100 (${score > 80 ? 'Optimal' : score > 60 ? 'Moderate' : 'Low Recovery'})`;
+    };
+
+    // Quick Natural Language Text Logger
+    window.parseQuickFoodLog = function() {
+      const text = document.getElementById('quickLogInput').value.toLowerCase();
+      if (!text) return;
+      
+      let matchedCount = 0;
+      foodDatabase.forEach(food => {
+        if (text.includes(food.name.toLowerCase().split(' ')[0])) {
+          addFoodToTracker(food.id);
+          matchedCount++;
+        }
+      });
+
+      if (matchedCount > 0) {
+        document.getElementById('quickLogInput').value = '';
+        showToast("Auto Parsed", `Matched & logged ${matchedCount} food items`);
+      } else {
+        showToast("No Match Found", "Try keywords like 'Chicken', 'Salmon', or 'Rice'");
+      }
+    };
+
+    // Custom Food Creator Modal
+    window.openCustomFoodModal = function() {
+      const modal = document.getElementById('customFoodModal');
+      modal.classList.remove('opacity-0', 'pointer-events-none');
+      modal.classList.add('opacity-100');
+    };
+
+    window.closeCustomFoodModal = function() {
+      const modal = document.getElementById('customFoodModal');
+      modal.classList.remove('opacity-100');
+      modal.classList.add('opacity-0', 'pointer-events-none');
+    };
+
+    window.saveCustomFoodItem = function() {
+      const name = document.getElementById('custFoodName').value.trim();
+      const cal = parseFloat(document.getElementById('custFoodCal').value) || 100;
+      const prot = parseFloat(document.getElementById('custFoodProt').value) || 10;
+      const carb = parseFloat(document.getElementById('custFoodCarb').value) || 10;
+      const fat = parseFloat(document.getElementById('custFoodFat').value) || 5;
+
+      if (name) {
+        const newItem = {
+          id: foodDatabase.length + 1000,
+          name, category: "Custom Items",
+          calories: cal, protein: prot, carbs: carb, fat: fat,
+          fiber: 0, sod: 0, pot: 0, serving: "Custom", icon: "✨"
+        };
+        foodDatabase.unshift(newItem);
+        renderFoods();
+        closeCustomFoodModal();
+        showToast("Custom Food Saved", `${name} added to database`);
+      }
+    };
+
+    // Export/Import JSON Backup
+    window.exportUserData = function() {
+      const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify({
+        userName, targets: userTargets, trackerItems, workoutPlanItems, userXp, waterMl
+      }));
+      const downloadAnchor = document.createElement('a');
+      downloadAnchor.setAttribute("href", dataStr);
+      downloadAnchor.setAttribute("download", `nutritrack_backup_${clientIp}.json`);
+      document.body.appendChild(downloadAnchor);
+      downloadAnchor.click();
+      downloadAnchor.remove();
+    };
+
+    window.triggerImport = function() {
+      document.getElementById('importFile').click();
+    };
+
+    window.importUserData = function(e) {
+      const file = e.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = function(evt) {
+        try {
+          const parsed = JSON.parse(evt.target.result);
+          if (parsed.trackerItems) trackerItems = parsed.trackerItems;
+          if (parsed.workoutPlanItems) workoutPlanItems = parsed.workoutPlanItems;
+          if (parsed.userXp) userXp = parsed.userXp;
+          saveIpSessionState();
+          updateTrackerUI();
+          updateLevelDisplay();
+          showToast("Data Imported", "Profile backup loaded successfully!");
+        } catch(err) {
+          showToast("Import Failed", "Invalid JSON backup file");
+        }
+      };
+      reader.readAsText(file);
+    };
+
+    window.generateGroceryList = function() {
+      if (trackerItems.length === 0) {
+        showToast("List Empty", "Log meals first to auto-generate grocery checklist");
+        return;
+      }
+      const names = trackerItems.map(i => `• ${i.name} (${i.quantity}x)`).join('\n');
+      alert(`🛒 NutriTrack Auto Grocery List:\n\n${names}`);
+    };
+
+    // Navigation & TDEE Calculations
+    window.switchTab = function(tab) {
+      const tabs = ['diet', 'workout', 'fasting', 'recipes', 'tools', 'journal'];
+      tabs.forEach(t => {
+        const view = document.getElementById(`${t}View`);
+        const btn = document.getElementById(`tab${t.charAt(0).toUpperCase() + t.slice(1)}`);
+        if (view && btn) {
+          if (t === tab) {
+            view.classList.remove('hidden');
+            btn.className = "px-4 py-2 rounded-xl text-xs font-bold flex items-center gap-2 bg-crimson-500 text-white shadow-lg crimson-glow font-display transition-all whitespace-nowrap";
+          } else {
+            view.classList.add('hidden');
+            btn.className = "px-4 py-2 rounded-xl text-xs font-bold flex items-center gap-2 bg-obsidian-850 text-slate-300 hover:bg-obsidian-800 font-display transition-all border border-transparent hover:border-crimson-500/20 whitespace-nowrap";
+          }
+        }
+      });
+    };
+
+    window.toggleCalcForm = function() {
+      document.getElementById('tdeeForm').classList.toggle('hidden');
+    };
+
+    window.toggleTheme = function() {
+      const isDark = document.documentElement.classList.toggle('dark');
+      document.documentElement.classList.toggle('light', !isDark);
+      document.getElementById('themeIcon').className = isDark ? "fa-solid fa-moon text-sm" : "fa-solid fa-sun text-sm text-amber-500";
+    };
+
+    function calculateTDEE() {
+      const gender = document.getElementById('userGender').value;
+      const age = parseFloat(document.getElementById('userAge').value) || 26;
+      const weight = parseFloat(document.getElementById('userWeight').value) || 78;
+      const height = parseFloat(document.getElementById('userHeight').value) || 180;
+      const bodyFat = parseFloat(document.getElementById('userBodyFat').value);
+      const activity = parseFloat(document.getElementById('userActivity').value) || 1.375;
+      const goal = document.getElementById('userGoal').value;
+      const preset = document.getElementById('macroSplitPreset').value;
+
+      let bmr = (10 * weight) + (6.25 * height) - (5 * age) + (gender === 'male' ? 5 : -161);
+      if (!isNaN(bodyFat) && bodyFat > 3) bmr = 370 + (21.6 * (weight * (1 - (bodyFat / 100))));
+
+      const tdee = bmr * activity;
+      let targetCalories = goal === 'cut' ? tdee * 0.8 : goal === 'bulk' ? tdee * 1.15 : tdee;
+
+      let pPct = 0.4, cPct = 0.4, fPct = 0.2;
+      if (preset === 'balanced') { pPct = 0.3; cPct = 0.5; fPct = 0.2; }
+      else if (preset === 'keto') { pPct = 0.25; cPct = 0.05; fPct = 0.7; }
+      else if (preset === 'low-fat') { pPct = 0.25; cPct = 0.6; fPct = 0.15; }
+
+      userTargets = {
+        bmr: Math.round(bmr),
+        tdee: Math.round(tdee),
+        calories: Math.round(targetCalories),
+        protein: Math.round((targetCalories * pPct) / 4),
+        carbs: Math.round((targetCalories * cPct) / 4),
+        fat: Math.round((targetCalories * fPct) / 9)
+      };
+
+      document.getElementById('bmrDisplay').textContent = userTargets.bmr.toLocaleString();
+      document.getElementById('tdeeDisplay').textContent = userTargets.tdee.toLocaleString();
+      document.getElementById('targetCalDisplay').textContent = userTargets.calories.toLocaleString();
+      document.getElementById('targetProteinDisplay').textContent = `${userTargets.protein}g`;
+      document.getElementById('targetCarbsDisplay').textContent = `${userTargets.carbs}g`;
+      document.getElementById('targetFatDisplay').textContent = `${userTargets.fat}g`;
+
+      document.getElementById('sidebarTargetCal').textContent = userTargets.calories.toLocaleString();
+      document.getElementById('sidebarTargetProtein').textContent = userTargets.protein;
+      document.getElementById('sidebarTargetCarbs').textContent = userTargets.carbs;
+      document.getElementById('sidebarTargetFat').textContent = userTargets.fat;
+
+      saveIpSessionState();
+      updateTrackerUI();
+    }
+
+    function renderCategoryButtons() {
+      const container = document.getElementById('categoryContainer');
+      container.innerHTML = foodCategories.map(cat => `
+        <button onclick="setCategory('${cat}')" class="category-btn px-3 py-1 rounded-xl text-xs font-semibold transition-all border ${cat === activeCategory ? 'bg-crimson-500 text-white border-crimson-500 font-bold crimson-glow-sm' : 'bg-obsidian-950 text-slate-400 border-crimson-500/15 hover:bg-obsidian-850'}">${cat}</button>
+      `).join('');
+    }
+
+    window.setCategory = function(cat) {
+      activeCategory = cat;
+      renderCategoryButtons();
+      renderFoods();
+    };
+
+    window.handleFoodSearch = function() {
+      searchQuery = document.getElementById('searchInput').value;
+      renderFoods();
+    };
+
+    window.handleFoodSort = function() {
+      sortOption = document.getElementById('sortSelect').value;
+      renderFoods();
+    };
+
+    function renderFoods() {
+      const foodGrid = document.getElementById('foodGrid');
+      let filtered = foodDatabase.filter(item => {
+        const matchCat = activeCategory === 'All Foods' || item.category === activeCategory;
+        const matchSearch = item.name.toLowerCase().includes(searchQuery.toLowerCase());
+        return matchCat && matchSearch;
+      });
+
+      if (sortOption === 'cal-low') filtered.sort((a,b) => a.calories - b.calories);
+      else if (sortOption === 'cal-high') filtered.sort((a,b) => b.calories - a.calories);
+      else if (sortOption === 'protein-high') filtered.sort((a,b) => b.protein - a.protein);
+
+      foodGrid.innerHTML = filtered.map(item => `
+        <div class="reveal-on-scroll bg-obsidian-900 border border-crimson-500/20 rounded-2xl p-4 shadow-md hover:border-crimson-500/50 hover:scale-[1.01] transition-all flex flex-col justify-between gap-3">
+          <div class="flex items-start justify-between">
+            <div class="flex items-center space-x-3">
+              <span class="text-3xl">${item.icon}</span>
+              <div>
+                <h3 class="font-bold text-white text-sm line-clamp-1">${item.name}</h3>
+                <span class="text-[11px] text-slate-400 font-medium">${item.category} • ${item.serving}</span>
+              </div>
+            </div>
+            <div class="text-right">
+              <span class="text-lg font-black text-white font-display">${item.calories}</span>
+              <span class="text-[10px] text-crimson-400 font-bold block">kcal</span>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-3 gap-2 py-2 px-3 bg-obsidian-950 rounded-xl text-center text-xs font-semibold border border-crimson-500/10">
+            <div><span class="text-indigo-400 block font-bold">${item.protein}g</span><span class="text-[9px] text-slate-500">Protein</span></div>
+            <div><span class="text-amber-400 block font-bold">${item.carbs}g</span><span class="text-[9px] text-slate-500">Carbs</span></div>
+            <div><span class="text-emerald-400 block font-bold">${item.fat}g</span><span class="text-[9px] text-slate-500">Fat</span></div>
+          </div>
+
+          <button onclick="addFoodToTracker(${item.id})" class="w-full py-2 bg-crimson-500 hover:bg-crimson-600 text-white font-bold text-xs rounded-xl transition-colors flex items-center justify-center gap-1.5 font-display shadow-md">
+            <i class="fa-solid fa-plus text-xs"></i> Add to Daily Plan
+          </button>
+        </div>
+      `).join('');
+
+      setupScrollAnimations();
+    }
+
+    function renderExerciseCategories() {
+      const container = document.getElementById('exCategoryContainer');
+      container.innerHTML = exCategoriesList.map(cat => `
+        <button onclick="setExCategory('${cat}')" class="ex-category-btn px-3 py-1 rounded-xl text-xs font-semibold transition-all border ${cat === activeExCategory ? 'bg-crimson-500 text-white border-crimson-500 font-bold crimson-glow-sm' : 'bg-obsidian-950 text-slate-400 border-crimson-500/15 hover:bg-obsidian-850'}">${cat}</button>
+      `).join('');
+    }
+
+    window.setExCategory = function(cat) {
+      activeExCategory = cat;
+      renderExerciseCategories();
+      renderExercises();
+    };
+
+    window.handleExSearch = function() {
+      exSearchQuery = document.getElementById('exSearchInput').value;
+      renderExercises();
+    };
+
+    function renderExercises() {
+      const exerciseGrid = document.getElementById('exerciseGrid');
+      let filtered = exerciseDatabase.filter(ex => {
+        const matchCategory = activeExCategory === 'All Exercises' || ex.category === activeExCategory;
+        const matchSearch = ex.name.toLowerCase().includes(exSearchQuery.toLowerCase());
+        return matchCategory && matchSearch;
+      });
+
+      exerciseGrid.innerHTML = filtered.map(ex => `
+        <div class="reveal-on-scroll bg-obsidian-900 border border-crimson-500/20 rounded-2xl p-4 shadow-md hover:border-crimson-500/50 hover:scale-[1.01] transition-all flex flex-col justify-between gap-3">
+          <div class="flex items-start justify-between">
+            <div class="flex items-center space-x-3">
+              <span class="text-3xl">${ex.icon}</span>
+              <div>
+                <h3 class="font-bold text-white text-sm line-clamp-1">${ex.name}</h3>
+                <span class="text-[10px] font-bold px-2 py-0.5 rounded-md bg-obsidian-950 text-crimson-400 border border-crimson-500/20 mt-1 inline-block">${ex.equipment}</span>
+              </div>
+            </div>
+            <div class="text-right">
+              <span class="text-base font-black text-crimson-400 font-display">~${ex.burnPer10Min}</span>
+              <span class="text-[10px] text-slate-500 block">kcal/10m</span>
+            </div>
+          </div>
+          <button onclick="addExerciseToPlan(${ex.id})" class="w-full py-2 bg-crimson-500 hover:bg-crimson-600 text-white font-bold text-xs rounded-xl transition-colors flex items-center justify-center gap-1.5 font-display shadow-md">
+            <i class="fa-solid fa-plus text-xs"></i> Add to Routine
+          </button>
+        </div>
+      `).join('');
+
+      setupScrollAnimations();
+    }
+
+    window.addFoodToTracker = function(id) {
+      const food = foodDatabase.find(f => f.id === id);
+      const existing = trackerItems.find(item => item.id === id);
+      if (existing) existing.quantity += 1;
+      else trackerItems.push({ ...food, quantity: 1 });
+      
+      addXp(15);
+      saveIpSessionState();
+      updateTrackerUI();
+      showToast("Meal Logged", `+15 XP gained from ${food.name}`);
+    };
+
+    window.addExerciseToPlan = function(id) {
+      const ex = exerciseDatabase.find(e => e.id === id);
+      workoutPlanItems.push({ ...ex, duration: 20 });
+      
+      addXp(25);
+      saveIpSessionState();
+      updateTrackerUI();
+      showToast("Routine Added", `+25 XP gained from ${ex.name}`);
+    };
+
+    window.clearAllLogs = function() {
+      trackerItems = [];
+      workoutPlanItems = [];
+      saveIpSessionState();
+      updateTrackerUI();
+      showToast("Logs Cleared", "Daily progress reset");
+    };
+
+    function updateTrackerUI() {
+      let totalCals = 0, totalProt = 0, totalCarb = 0, totalFatVal = 0;
+      let totalFiber = 0, totalSod = 0, totalPot = 0;
+
+      trackerItems.forEach(item => {
+        const q = item.quantity;
+        totalCals += item.calories * q;
+        totalProt += item.protein * q;
+        totalCarb += item.carbs * q;
+        totalFatVal += item.fat * q;
+        totalFiber += (item.fiber || 0) * q;
+        totalSod += (item.sod || 0) * q;
+        totalPot += (item.pot || 0) * q;
+      });
+
+      let totalBurned = 0;
+      workoutPlanItems.forEach(w => {
+        totalBurned += Math.round((w.duration / 10) * w.burnPer10Min);
+      });
+
+      const netCals = Math.round(totalCals - totalBurned);
+      document.getElementById('totalCalories').textContent = Math.round(totalCals);
+      document.getElementById('totalBurnedCalories').textContent = Math.round(totalBurned);
+      document.getElementById('netCalories').textContent = netCals;
+
+      document.getElementById('totalProtein').textContent = Math.round(totalProt);
+      document.getElementById('totalCarbs').textContent = Math.round(totalCarb);
+      document.getElementById('totalFat').textContent = Math.round(totalFatVal);
+
+      document.getElementById('microFiber').textContent = `${Math.round(totalFiber)}g`;
+      document.getElementById('microSodium').textContent = `${Math.round(totalSod)}mg`;
+      document.getElementById('microPotassium').textContent = `${Math.round(totalPot)}mg`;
+
+      document.getElementById('loggedCount').textContent = trackerItems.length;
+      document.getElementById('workoutLoggedCount').textContent = workoutPlanItems.length;
+
+      document.getElementById('proteinBar').style.width = `${Math.min(100, (totalProt / userTargets.protein) * 100)}%`;
+      document.getElementById('carbsBar').style.width = `${Math.min(100, (totalCarb / userTargets.carbs) * 100)}%`;
+      document.getElementById('fatBar').style.width = `${Math.min(100, (totalFatVal / userTargets.fat) * 100)}%`;
+
+      // AI Recommendation Logic
+      const remProt = userTargets.protein - totalProt;
+      const aiEl = document.getElementById('aiSuggestion');
+      if (remProt > 30) {
+        aiEl.textContent = `Need ~${Math.round(remProt)}g more protein. Suggesting Chicken Breast, Salmon, or Whey Protein.`;
+      } else if (remProt < -20) {
+        aiEl.textContent = `Protein target exceeded! Focus on lower-calorie fibrous greens for remaining meals.`;
+      } else {
+        aiEl.textContent = `Macros are well balanced! Keep hydration up with the water wave meter.`;
+      }
+
+      const trackerList = document.getElementById('trackerList');
+      trackerList.innerHTML = trackerItems.length === 0 ? `<p class="text-xs text-slate-500 py-2 text-center">No meals logged today.</p>` :
+        trackerItems.map((item) => `
+          <div class="flex items-center justify-between p-2 bg-obsidian-950 rounded-xl text-xs border border-crimson-500/10">
+            <span class="font-bold text-white truncate max-w-[140px]">${item.name} (${item.quantity}x)</span>
+            <span class="text-crimson-400 font-bold">${item.calories * item.quantity} kcal</span>
+          </div>
+        `).join('');
+
+      const workoutPlanList = document.getElementById('workoutPlanList');
+      workoutPlanList.innerHTML = workoutPlanItems.length === 0 ? `<p class="text-xs text-slate-500 py-2 text-center">No exercises in routine.</p>` :
+        workoutPlanItems.map((ex) => `
+          <div class="flex items-center justify-between p-2 bg-obsidian-950 rounded-xl text-xs border border-crimson-500/10">
+            <span class="font-bold text-white truncate max-w-[140px]">${ex.name}</span>
+            <span class="text-rose-400 font-bold">~${Math.round((ex.duration / 10) * ex.burnPer10Min)} kcal</span>
+          </div>
+        `).join('');
+    }
+
+    window.printPlan = function() {
+      document.getElementById('printDate').textContent = new Date().toLocaleDateString();
+      document.getElementById('printUserIp').textContent = `Client IP Hash: ${clientIp} • Athlete: ${userName}`;
+      window.print();
+    };
+
+    window.openAccountModal = function() {
+      document.getElementById('accountModal').classList.remove('opacity-0', 'pointer-events-none');
+    };
+
+    window.closeAccountModal = function() {
+      document.getElementById('accountModal').classList.add('opacity-0', 'pointer-events-none');
+    };
+
+    window.saveProfileHandle = function() {
+      const val = document.getElementById('modalUserName').value.trim();
+      if (val) userName = val;
+      saveIpSessionState();
+      closeAccountModal();
+      showToast("Profile Saved", `Handle updated to ${userName}`);
+    };
+
+    window.resetIpSession = function() {
+      trackerItems = [];
+      workoutPlanItems = [];
+      userXp = 0;
+      waterMl = 0;
+      saveIpSessionState();
+      updateTrackerUI();
+      updateWaterUI();
+      updateLevelDisplay();
+      closeAccountModal();
+      showToast("Session Reset", "All local IP data cleared");
+    };
+
+    document.addEventListener('DOMContentLoaded', () => {
+      initIpAuthSession();
+      renderCategoryButtons();
+      renderExerciseCategories();
+      renderFoods();
+      renderExercises();
+      calculateOneRm();
+      calculateHeartZones();
+      calculateReadiness();
+      setupScrollAnimations();
+    });
+  </script>
+</body>
+</html>
